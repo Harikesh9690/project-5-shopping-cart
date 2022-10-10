@@ -15,6 +15,7 @@ const createUser =async function(req, res){
         let passValid = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
         let emailValid = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
         let mobileValid = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/
+         
         if (!isValid(data)) {
             return res.status(400).send({ status: false, message: "You have not provided any data" })
         }
