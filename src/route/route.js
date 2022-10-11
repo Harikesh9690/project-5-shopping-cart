@@ -9,6 +9,9 @@ router.get('/test-me', function ss(req, res) {
 router.post('/register', user.createUser)
 router.post('/login', user.loginUser)
 
+router.get('/user/:userId/profile', user.getUserDetails)
+router.put('/user/:userId/profile', user.updateProfile)
+
 
 router.all("/*", function (req, res) {
     res.status(400).send({
