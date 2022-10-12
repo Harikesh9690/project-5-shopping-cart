@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router()
 const user = require('../controllers/userController')
+const mw = require('../middleware/auth')
 
 router.get('/test-me', function ss(req, res) {
     res.send("working")
@@ -9,7 +10,7 @@ router.get('/test-me', function ss(req, res) {
 router.post('/register', user.createUser)
 router.post('/login', user.loginUser)
 
-router.get('/user/:userId/profile', user.getUserDetails)
+router.get('/user/:userId/profile',mw.auth, user.getUserDetails)
 router.put('/user/:userId/profile', user.updateProfile)
 
 

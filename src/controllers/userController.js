@@ -164,7 +164,6 @@ const loginUser = async function (req, res) {
     let userdetails = await userModel.findOne({ email: userName.trim() });
     if (userdetails) {
       let validpassword = await bcrypt.compare(password.trim(), userdetails.password)
-      console.log(typeof (validpassword));
       if (!validpassword) {
         return res.status(401).send({ status: false, message: "Emaild or the password is not correct" });
       }
@@ -281,42 +280,42 @@ const updateProfile = async function (req, res) {
       const salt = await bcrypt.genSalt(12)
       data.password = await bcrypt.hash(data.password, salt)
     }
-
-    let address = JSON.parse(data.address)
-    console.log(address);
-    if (address) {
-      if (address.shipping) {
-        if (address.shipping.street) {
-          address.shipping.street = address.shipping.street.trim().split(" ").filter(word => word).join(" ")
+  
+  
+    if (data.address) {
+       data.address  = JSON.parse(data.address)
+      if (data.address.shipping) {
+        if (data.address.shipping.street) {
+          data.address.shipping.street = data.address.shipping.street.trim().split(" ").filter(word => word).join(" ")
         }
-        if (address.shipping.city) {
-          if (!/^[a-zA-Z][a-zA-Z\\s]+$/.test(address.shipping.city)) {
+        if (data.address.shipping.city) {
+          if (!/^[a-zA-Z][a-zA-Z\\s]+$/.test(data.address.shipping.city)) {
             return res.status(400).send({ status: false, message: "you can not give a number in city name" })
           }
-          address.shipping.city = address.shipping.city
+          data.address.shipping.city = data.address.shipping.city
         }
-        if (address.shipping.pincode) {
-          if (!/^[1-9]\d{5}$/.test(address.shipping.pincode)) {
+        if (data.address.shipping.pincode) {
+          if (!/^[1-9]\d{5}$/.test(data.address.shipping.pincode)) {
             return res.status(400).send({ status: false, message: "please valid pincode" })
           }
-          address.shipping.pincode = address.shipping.pincode
+          data.address.shipping.pincode = data.address.shipping.pincode
         }
       }
-      if (address.billing) {
-        if (address.billing.street) {
-          address.billing.street = address.billing.street.trim().split(" ").filter(word => word).join(" ")
+      if (data.address.billing) {
+        if (data.address.billing.street) {
+          data.address.billing.street = data.address.billing.street.trim().split(" ").filter(word => word).join(" ")
         }
-        if (address.billing.city) {
-          if (!/^[a-zA-Z][a-zA-Z\\s]+$/.test(address.billing.city)) {
+        if (data.address.billing.city) {
+          if (!/^[a-zA-Z][a-zA-Z\\s]+$/.test(data.address.billing.city)) {
             return res.status(400).send({ status: false, message: "you can not give a number in city name" })
           }
-          address.billing.city = address.billing.city
+          data.address.billing.city = data.address.billing.city
         }
-        if (address.billing.pincode) {
+        if (data.address.billing.pincode) {
           if (!/^[1-9]\d{5}$/.test(data.address.billing.pincode)) {
             return res.status(400).send({ status: false, message: "please valid pincode" })
           }
-          address.billing.pincode = address.billing.pincode
+          data.address.billing.pincode = data.address.billing.pincode
         }
       }
     }
@@ -329,7 +328,7 @@ const updateProfile = async function (req, res) {
 
     let updated = await userModel.findByIdAndUpdate(
       { _id: userId },
-      { $set: data},
+      { $set: {fname: data.fname, /*'address.billing.city':data.address.billing.city, 'address.billing.pincode':data.address.billing.pincode, 'address.billing.street':data.address.billing.street,/* 'address.shipping.city':data.address.shipping.city, 'address.shipping.pincode':data.address.shipping.pincode,*/ 'address.shipping.street':data.address.shipping.street }},
       { new: true }
     );
     return res.status(200).send({ status: true, message: "update sucsessfully", data: updated });
