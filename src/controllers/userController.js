@@ -250,7 +250,6 @@ const updateProfile = async function (req, res) {
     }
 
     let data = req.body
-    let file = req.files
     if (data.fname) {
       data.fname = data.fname.trim().split("").filter(word => word).join("")
     }
@@ -287,45 +286,56 @@ const updateProfile = async function (req, res) {
     console.log(address);
     if (address) {
       if (address.shipping) {
+        if (address.shipping.street) {
+          address.shipping.street = address.shipping.street.trim().split(" ").filter(word => word).join(" ")
+        }
         if (address.shipping.city) {
-          if (!/^[A-Z a-z]$/.test(address.shipping.city)) {
+          if (!/^[a-zA-Z][a-zA-Z\\s]+$/.test(address.shipping.city)) {
             return res.status(400).send({ status: false, message: "you can not give a number in city name" })
           }
-          if (address.shipping.pincode) {
-            if (!/^[1-9]\d{5}$/.test(address.shipping.pincode)) {
-              return res.status(400).send({ status: false, message: "please valid pincode" })
-            }
+          address.shipping.city = address.shipping.city
+        }
+        if (address.shipping.pincode) {
+          if (!/^[1-9]\d{5}$/.test(address.shipping.pincode)) {
+            return res.status(400).send({ status: false, message: "please valid pincode" })
           }
+          address.shipping.pincode = address.shipping.pincode
         }
       }
       if (address.billing) {
+        if (address.billing.street) {
+          address.billing.street = address.billing.street.trim().split(" ").filter(word => word).join(" ")
+        }
         if (address.billing.city) {
-          if (!/^[a-zA-Z\- ]+$/.test(address.billing.city)) {
+          if (!/^[a-zA-Z][a-zA-Z\\s]+$/.test(address.billing.city)) {
             return res.status(400).send({ status: false, message: "you can not give a number in city name" })
           }
+          address.billing.city = address.billing.city
         }
-          if (address.billing.pincode) {
-            if (!/^[1-9]\d{5}$/.test(data.address.billing.pincode)) {
-              return res.status(400).send({ status: false, message: "please valid pincode" })
-            }
+        if (address.billing.pincode) {
+          if (!/^[1-9]\d{5}$/.test(data.address.billing.pincode)) {
+            return res.status(400).send({ status: false, message: "please valid pincode" })
+          }
+          address.billing.pincode = address.billing.pincode
         }
       }
     }
 
-    if (file) {
+    let file = req.files
+    if (file && file.length > 0) {
       let fileupload = await awsfile.uploadFile(file[0])
       data.profileImage = fileupload
     }
 
-    let updated = await userModel.findOneAndUpdate(
+    let updated = await userModel.findByIdAndUpdate(
       { _id: userId },
-      { fname: data.fname, lname: data.lname, email: data.email, phone: data.phone, password: data.password, profileImage: data.profileImage, address: data.address, updatedAt: Date.now() },
+      { $set: data},
       { new: true }
     );
     return res.status(200).send({ status: true, message: "update sucsessfully", data: updated });
   }
   catch (err) {
-    res.status(500).send({ message: "server error", error: err });
+    res.status(500).send({ message: "server error", error: err.message });
   }
 }
 module.exports = { createUser, loginUser, getUserDetails, updateProfile }
