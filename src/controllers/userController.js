@@ -247,8 +247,14 @@ const updateProfile = async function (req, res) {
     if (!DetailsWithUserId) {
       return res.status(404).send({ status: false, message: "USER IS NOT FOUND FOR THIS ID" })
     }
+    if (req.pass.userId !== userId) {
+      return res.status(403).send({ status: false, msg: "you are not authorised !!" })
+    }
 
     let data = req.body
+    if (!isValid(data)) {
+      return res.status(400).send({ status: false, msg: "request body is empty" });
+    }
     if (data.fname) {
       data.fname = data.fname.trim().split("").filter(word => word).join("")
     }
@@ -328,7 +334,7 @@ const updateProfile = async function (req, res) {
 
     let updated = await userModel.findByIdAndUpdate(
       { _id: userId },
-      { $set: {fname: data.fname, /*'address.billing.city':data.address.billing.city, 'address.billing.pincode':data.address.billing.pincode, 'address.billing.street':data.address.billing.street,/* 'address.shipping.city':data.address.shipping.city, 'address.shipping.pincode':data.address.shipping.pincode,*/ 'address.shipping.street':data.address.shipping.street }},
+      { $set: data},
       { new: true }
     );
     return res.status(200).send({ status: true, message: "update sucsessfully", data: updated });
@@ -338,7 +344,6 @@ const updateProfile = async function (req, res) {
   }
 }
 module.exports = { createUser, loginUser, getUserDetails, updateProfile }
-
 
 
 

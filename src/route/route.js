@@ -11,7 +11,7 @@ router.post('/register', user.createUser)
 router.post('/login', user.loginUser)
 
 router.get('/user/:userId/profile',mw.auth, user.getUserDetails)
-router.put('/user/:userId/profile', user.updateProfile)
+router.put('/user/:userId/profile',mw.auth, user.updateProfile)
 
 
 router.all("/*", function (req, res) {
