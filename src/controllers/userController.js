@@ -113,7 +113,7 @@ const createUser = async function (req, res) {
       let fileupload = await awsfile.uploadFile(file[0])
       data.profileImage = fileupload
     } else {
-      res.status(400).send({ msg: "Please provide profileImage. it's mandatory" })
+     return res.status(400).send({ status: false, message: "Please provide profileImage. it's mandatory" })
     }
     let savedata = await userModel.create(data)
     return res.status(201).send({ status: true, message: 'User created successfully', data: savedata })

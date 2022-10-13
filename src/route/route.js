@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router()
 const user = require('../controllers/userController')
+const product = require('../controllers/productController')
 const mw = require('../middleware/auth')
 
 router.get('/test-me', function ss(req, res) {
@@ -12,6 +13,11 @@ router.post('/login', user.loginUser)
 
 router.get('/user/:userId/profile',mw.auth, user.getUserDetails)
 router.put('/user/:userId/profile',mw.auth, user.updateProfile)
+
+router.post('/products', product.createProduct)
+router.get('/products', product.getProducts)
+router.post('/products/:productId', product.productByid)
+
 
 
 router.all("/*", function (req, res) {
