@@ -10,13 +10,16 @@ router.get('/test-me', function ss(req, res) {
 
 router.post('/register', user.createUser)
 router.post('/login', user.loginUser)
-
 router.get('/user/:userId/profile',mw.auth, user.getUserDetails)
 router.put('/user/:userId/profile',mw.auth, user.updateProfile)
 
+
 router.post('/products', product.createProduct)
 router.get('/products', product.getProducts)
-router.post('/products/:productId', product.productByid)
+router.get('/products/:productId', product.productByid)
+router.put('/products/:productId', product.updateProducts)
+router.delete('/products/:productId', product.deleteProduct)
+
 
 
 

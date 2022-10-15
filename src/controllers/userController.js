@@ -252,7 +252,9 @@ const updateProfile = async function (req, res) {
     }
 
     let data = req.body
-    if (!isValid(data)) {
+    let file = req.files
+    
+    if (!isValid(data) && !isValid(file)) {
       return res.status(400).send({ status: false, msg: "request body is empty" });
     }
     if (data.fname) {
@@ -326,7 +328,7 @@ const updateProfile = async function (req, res) {
       }
     }
 
-    let file = req.files
+    
     if (file && file.length > 0) {
       let fileupload = await awsfile.uploadFile(file[0])
       data.profileImage = fileupload
