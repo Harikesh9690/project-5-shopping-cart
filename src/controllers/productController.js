@@ -100,13 +100,12 @@ let getProducts = async function (req, res) {
         } 
 
         let filter = { isDeleted: false }
-        let availableSizes = size
-        if (availableSizes) {
-            let size = availableSizes.toUpperCase().split(",")
-            availableSizes = size
+        
+        if (size) {
+            size = size.toUpperCase().split(",")
 
-            for (let i = 0; i < availableSizes.length; i++) {
-                if (!isValidSize(availableSizes[i])) {
+            for (let i = 0; i < size.length; i++) {
+                if (!isValidSize(size[i])) {
                     return res.status(400).send({ status: false, message: "Size shouldbe one of them [S,XS,M,X,XL,XXL]" })
                 }
             }

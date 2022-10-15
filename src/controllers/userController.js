@@ -129,7 +129,6 @@ const loginUser = async function (req, res) {
     let password = data.password;
     let passValid = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
 
-    console.log(userName, password);
     //if give nothing inside req.body
     if (Object.keys(data).length == 0) {
       return res.status(400).send({
