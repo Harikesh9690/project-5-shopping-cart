@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 const awsfile = require('../aws/aws')
-const {isValid} = require('../validations/validation')
+const {isValid, isvalidemail, isvalidpassword, isvalidmobileNumber} = require('../validations/validation')
 
 
 const createUser = async function (req, res) {
@@ -11,9 +11,6 @@ const createUser = async function (req, res) {
     let data = req.body
     let file = req.files
     let { fname, lname, phone, email, password } = data
-    let passValid = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
-    let emailValid = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
-    let mobileValid = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/
 
     if (!isValid(data)) {
       return res.status(400).send({ status: false, message: "You have not provided any data" })
@@ -21,17 +18,17 @@ const createUser = async function (req, res) {
     if (!isValid(fname)) {
       return res.status(400).send({ status: false, message: "Please provide fname. it's mandatory" })
     } else {
-      fname = fname.trim().split("").filter(word => word).join("")
+       data.fname = fname.replace(/\s+/g, '')
     }
     if (!isValid(lname)) {
       return res.status(400).send({ status: false, message: "Please provide lname. it's mandatory" })
     } else {
-      lname = lname.trim().split("").filter(word => word).join("")
+      data.lname = lname.replace(/\s+/g, '')
     }
     if (!isValid(email)) {
       return res.status(400).send({ status: false, message: "Please provide email" })
     }
-    if (!emailValid.test(email)) {
+    if (!isvalidemail(email)) {
       return res.status(400).send({ status: false, message: "Enter valid email" })
     }
     let usersemail = await userModel.findOne({ email: email })
@@ -41,7 +38,7 @@ const createUser = async function (req, res) {
     if (!phone) {
       return res.status(400).send({ status: false, message: "Please provide Mobile Number. it's mandatory" })
     }
-    if (!mobileValid.test(phone)) {
+    if (!isvalidmobileNumber(phone)) {
       return res.status(400).send({ status: false, message: "please provide valid mobile Number 10-digit" })
     }
     let usersphone = await userModel.findOne({ phone: phone })
@@ -51,7 +48,7 @@ const createUser = async function (req, res) {
     if (!isValid(password)) {
       return res.status(400).send({ status: false, message: "Please provide password" })
     }
-    if (!passValid.test(password)) {
+    if (!isvalidpassword(password)) {
       return res.status(400).send({ status: false, message: "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number" })
     }
     const salt = await bcrypt.genSalt(12)
@@ -122,34 +119,24 @@ const loginUser = async function (req, res) {
     let data = req.body
     let userName = data.email;
     let password = data.password;
-    let passValid = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
 
     //if give nothing inside req.body
     if (Object.keys(data).length == 0) {
-      return res.status(400).send({
-        status: false,
-        message: "Please provide email & password to login.",
-      });
+      return res.status(400).send({ status: false, message: "Please provide email & password to login." });
     }
     if (Object.keys(data).length > 2) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Only email & password is required." });
+      return res.status(400).send({ status: false, message: "Only email & password is required." });
     }
     //---------------------------------------------//
     //if no Email inside req.
     if (!userName) {
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide an Email !" });
+      return res.status(400).send({ status: false, message: "please provide an Email !" });
     }
     //if no password inside req.body
     if (!password) {
-      return res
-        .status(400)
-        .send({ status: false, message: "please enter password !" });
+      return res.status(400).send({ status: false, message: "please enter password !" });
     }
-    if (!passValid.test(password)) {
+    if (!isvalidpassword(password)) {
       return res.status(400).send({ status: false, message: "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number" })
     }
     //-------------------------------------//
@@ -198,11 +185,7 @@ const getUserDetails = async function (req, res) {
 
     let userPresent = await userModel.findOne({ _id: userId });
     if (!userPresent) {
-      return res.status(404).send({
-        status: false,
-        message:
-          "No user is present with this id !",
-      });
+      return res.status(404).send({status: false, message: "No user is present with this id !"});
     }
     // review alike
     const { fname, lname, phone, email, password, address, profileImage, _id, createdAt, updatedAt, __v } = userPresent
@@ -228,9 +211,7 @@ const getUserDetails = async function (req, res) {
 const updateProfile = async function (req, res) {
   try {
     let userId = req.params.userId
-    let mobileValid = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/
-    let emailValid = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
-    let passValid = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
+    
     if (!userId) {
       return res.status(400).send({ status: false, message: "User Id is required in path params !" })
     }
@@ -252,13 +233,13 @@ const updateProfile = async function (req, res) {
       return res.status(400).send({ status: false, msg: "request body is empty" });
     }
     if (data.fname) {
-      data.fname = data.fname.trim().split("").filter(word => word).join("")
+      data.fname = data.fname.replace(/\s+/g, '')
     }
     if (data.lname) {
-      data.lname = data.lname.trim().split("").filter(word => word).join("")
+      data.lname = data.lname.replace(/\s+/g, '')
     }
     if (data.email) {
-      if (!emailValid.test(data.email)) {
+      if (!isvalidemail(data.email)) {
         return res.status(400).send({ status: false, message: "Enter valid email" })
       }
       let usersemail = await userModel.findOne({ email: data.email })
@@ -267,7 +248,7 @@ const updateProfile = async function (req, res) {
       }
     }
     if (data.phone) {
-      if (!mobileValid.test(data.phone)) {
+      if (!isvalidmobileNumber(data.phone)) {
         return res.status(400).send({ status: false, message: "please provide valid mobile Number 10-digit" })
       }
       let usersphone = await userModel.findOne({ phone: data.phone })
@@ -276,7 +257,7 @@ const updateProfile = async function (req, res) {
       }
     }
     if (data.password) {
-      if (!passValid.test(data.password)) {
+      if (!isvalidpassword(data.password)) {
         return res.status(400).send({ status: false, message: "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number" })
       }
       const salt = await bcrypt.genSalt(12)

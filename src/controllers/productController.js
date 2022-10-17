@@ -21,7 +21,7 @@ const createProduct = async function (req, res) {
 
         if (!price) return res.status(400).send({ status: false, msg: "Price Is A Mandatory Field And Should Be A Number Only" });
         price = Number(price);
-        if (!/^[1-9]\d*(\.\d+)?$/.test(price)) return res.status(400).send({ status: false, msg: "Price Should Be A Number Only" });
+        if (!validPrice(price)) return res.status(400).send({ status: false, msg: "Price Should Be A Number Only" });
 
         if (currencyId && currencyId !== "INR") return res.status(400).send({ status: false, msg: "CurrencyId Should Be 'INR' Only" });
         if (currencyFormat && currencyFormat !== "₹") return res.status(400).send({ status: false, msg: "CurrencyFormat Should Be '₹' Only" });

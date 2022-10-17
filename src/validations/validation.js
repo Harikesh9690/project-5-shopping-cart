@@ -19,9 +19,16 @@ let isValidSize = function (sizes) {
     return ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL'].includes(sizes);
 }
 
-const validPrice = (name) => {
-    return (name)
-        .match(/^([0-9]{0,15}((.)[0-9]{0,2}))$/)
+const validPrice = (value) => {
+    return (value).match(/^([0-9]{0,15}((.)[0-9]{0,2}))$/)
 }
-
-module.exports = {isValid, isValidSize, stringChecking, validPrice}
+const isvalidpassword = (value) => {
+    return (value).match(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/)
+}
+const isvalidemail = (value) => {
+    return (value).match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/)
+}
+const isvalidmobileNumber = (value) => {
+    return (value).match(/^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/)
+}
+module.exports = {isValid, isValidSize, stringChecking, validPrice, isvalidemail, isvalidmobileNumber, isvalidpassword}
