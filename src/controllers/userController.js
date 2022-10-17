@@ -3,13 +3,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 const awsfile = require('../aws/aws')
+const {isValid} = require('../validations/validation')
 
-const isValid = function (value) {
-  if (typeof value === "undefined" || value === null) return false;
-  if (typeof value === "string" && value.trim().length === 0) return false;
-  if (typeof value === "object" && Object.keys(value).length === 0) return false;
-  return true;
-};
 
 const createUser = async function (req, res) {
   try {

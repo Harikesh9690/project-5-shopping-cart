@@ -1,29 +1,7 @@
 const productModel = require('../Models/productModel')
 const mongoose = require('mongoose')
 const awsfile = require('../aws/aws')
-
-const stringChecking = function (data) {
-    if (typeof data !== 'string') {
-        return false;
-    } else if (typeof data === 'string' && data.trim().length === 0) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-const validField = (name) => {
-    return toString(name).toLowerCase().match(/^[a-zA-Z0-9.,-_;: ]+$/)
-}
-
-let isValidSize = function (sizes) {
-    return ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL'].includes(sizes);
-}
-
-const validPrice = (name) => {
-    return (name)
-        .match(/^([0-9]{0,15}((.)[0-9]{0,2}))$/)
-}
+const {isValid, isValidSize, stringChecking, validPrice} = require('../validations/validation')
 
 
 const createProduct = async function (req, res) {
@@ -93,7 +71,7 @@ let getProducts = async function (req, res) {
     try {
         let data = req.query
         let { name, priceSort, size, priceGreaterThan, priceLessThan, } = data
-        if (!validField(name)) { return res.status(400).send({ status: false, message: "Please enter title in correct format" }) }
+        if (!/^[a-zA-Z0-9.,-_;: ]+$/.test(name) && name.toLowerCase()) { return res.status(400).send({ status: false, message: "Please enter title in correct format" }) }
 
         if (priceSort) {
             if (!priceSort == -1 || !priceSort == 1) { return res.status(400).send({ status: false, message: "Please enter valid price pricesort" }) }
@@ -168,18 +146,7 @@ const productByid = async function (req, res) {
         return res.status(500).send({ status: false, message: error.message });
     }
 }
-
-const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    if (typeof value === "object" && Object.keys(value).length === 0) return false;
-    return true;
-  };
-
-const isValidStyle = function (value) {
-    return (/^[a-zA-Z _.-]+$/).test(value)
-}
-
+ 
 
 const updateProducts = async function (req, res) {
     try {
@@ -234,7 +201,7 @@ const updateProducts = async function (req, res) {
                 return res.status(400).sens({ status: false, message: "Style is not valid" })
             }
 
-            if (!isValidStyle(data.style)) {
+            if (!/^[a-zA-Z _.-]+$/.test(data.style)) {
                 return res.status(400).send({ status: false, message: "Style is not in correct format" })
             }
         }

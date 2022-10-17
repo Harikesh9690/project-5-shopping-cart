@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router()
 const user = require('../controllers/userController')
 const product = require('../controllers/productController')
+const cart = require('../controllers/cartController')
 const mw = require('../middleware/auth')
 
 router.get('/test-me', function ss(req, res) {
@@ -21,7 +22,7 @@ router.put('/products/:productId', product.updateProducts)
 router.delete('/products/:productId', product.deleteProduct)
 
 
-
+router.post('/users/:userId/cart', cart.createCart)
 
 router.all("/*", function (req, res) {
     res.status(400).send({
