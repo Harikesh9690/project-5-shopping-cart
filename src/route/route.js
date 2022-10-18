@@ -23,6 +23,11 @@ router.delete('/products/:productId', product.deleteProduct)
 
 
 router.post('/users/:userId/cart', cart.createCart)
+router.get('/users/:userId/cart', cart.getCart)
+router.put('/users/:userId/cart', cart.updatecart)
+router.delete('/users/:userId/cart', cart.deleteCart)
+
+
 
 router.all("/*", function (req, res) {
     res.status(400).send({
