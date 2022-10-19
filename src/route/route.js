@@ -3,6 +3,7 @@ const router = express.Router()
 const user = require('../controllers/userController')
 const product = require('../controllers/productController')
 const cart = require('../controllers/cartController')
+const order = require('../controllers/orderController')
 const mw = require('../middleware/auth')
 
 router.get('/test-me', function ss(req, res) {
@@ -27,6 +28,8 @@ router.get('/users/:userId/cart', cart.getCart)
 router.put('/users/:userId/cart', cart.updatecart)
 router.delete('/users/:userId/cart', cart.deleteCart)
 
+
+router.post('/users/:userId/orders', order.orderCreate)
 
 
 router.all("/*", function (req, res) {
