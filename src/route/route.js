@@ -6,10 +6,7 @@ const cart = require('../controllers/cartController')
 const order = require('../controllers/orderController')
 const mw = require('../middleware/auth')
 
-router.get('/test-me', function ss(req, res) {
-    res.send("working")
-})
-
+ 
 router.post('/register', user.createUser)
 router.post('/login', user.loginUser)
 router.get('/user/:userId/profile',mw.auth, user.getUserDetails)
@@ -23,13 +20,14 @@ router.put('/products/:productId', product.updateProducts)
 router.delete('/products/:productId', product.deleteProduct)
 
 
-router.post('/users/:userId/cart', cart.createCart)
-router.get('/users/:userId/cart', cart.getCart)
-router.put('/users/:userId/cart', cart.updatecart)
-router.delete('/users/:userId/cart', cart.deleteCart)
+router.post('/users/:userId/cart',mw.auth, cart.createCart)
+router.get('/users/:userId/cart',mw.auth, cart.getCart)
+router.put('/users/:userId/cart',mw.auth, cart.updatecart)
+router.delete('/users/:userId/cart',mw.auth, cart.deleteCart)
 
 
-router.post('/users/:userId/orders', order.orderCreate)
+router.post('/users/:userId/orders',mw.auth, order.orderCreate)
+router.put('/users/:userId/orders',mw.auth, order.updateOrder)
 
 
 router.all("/*", function (req, res) {

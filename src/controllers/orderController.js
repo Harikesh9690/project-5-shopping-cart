@@ -18,6 +18,10 @@ const orderCreate = async function (req, res) {
         if (!userPresent) {
             return res.status(404).send({ status: false, message: "No user is present with this id !" });
         }
+        //authorization
+        if (req.pass.userId !== userId) {
+            return res.status(403).send({ status: false, msg: "you are not authorised !!" })
+          }
         let data = req.body
         if (!isValid(data.cartId)) {
             return res.status(400).send({ status: false, message: 'please provide cartId' })
@@ -56,7 +60,7 @@ const orderCreate = async function (req, res) {
             totalQuantity: totalQuantity,
             cancellable: data.cancellable
         }
-      
+
         let savedata = await orderModel.create(orderData)
         if (savedata) {
             let forupdate = {
@@ -66,18 +70,20 @@ const orderCreate = async function (req, res) {
             }
             await cartModel.findOneAndUpdate(
                 { userId: userId },
-                 forupdate,
+                forupdate,
                 { new: true }
             );
         }
-        return res.status(201).send({status: true,message: 'Success', data: savedata})
+        return res.status(201).send({ status: true, message: 'Success', data: savedata })
     } catch (error) {
         return res.status(500).send({ status: false, Error: error.message });
     }
 }
 
-const updateOrder = async function(req, res){
-    let userId = req.params.userId
+const updateOrder = async function (req, res) {
+
+    try {
+        let userId = req.params.userId
         if (!userId) {
             return res.status(400).send({ status: false, message: "User Id is required in path params !" })
         }
@@ -88,6 +94,10 @@ const updateOrder = async function(req, res){
         if (!userPresent) {
             return res.status(404).send({ status: false, message: "No user is present with this id !" });
         }
+        //authorization
+        if (req.pass.userId !== userId) {
+            return res.status(403).send({ status: false, msg: "you are not authorised !!" })
+          }
         let data = req.body
         if (!isValid(data.orderId)) {
             return res.status(400).send({ status: false, message: 'please provide orderid' })
@@ -95,16 +105,34 @@ const updateOrder = async function(req, res){
         if (!mongoose.Types.ObjectId.isValid(data.orderId)) {
             return res.status(400).send({ status: false, message: "orderId id is invalid!" })
         }
-        let orderDetails = await orderModel.findById({_id: data.orderId})
+        let orderDetails = await orderModel.findOne({ _id: data.orderId, status: 'pending'})
         if (!orderDetails) {
             return res.status(400).send({ status: false, message: "you have no any order for this order id !!" })
         }
         if (orderDetails.userId.toString() !== userId) {
             return res.status(400).send({ status: false, message: "this order Id is not yours" })
         }
-        if (orderDetails.cancellable === false) {
-            return res.status(400).send({ status: false, message: "you" })
+        if (data.status != "completed" && data.status != "cancled") {
+            return res.status(400).send({ status: false, message: "status should be 'completed' or 'cancled'"})
         }
+        if (orderDetails.cancellable === false && data.status !== "completed") {
+            return res.status(400).send({ status: false, message: "you can not cancle this order. This is not cancellable" })
+        }
+        if (data.status === "cancled") {
+            await orderModel.findByIdAndUpdate(
+                { _id: data.orderId },
+                { $set: { status: data.status, isDeleted: true, deletedAt: Date.now() } })
+            return res.status(200).send({ status: true, message: 'your order has been cancled' })
+        }
+        let updatedOrder = await orderModel.findByIdAndUpdate(
+            { _id: data.orderId },
+            { $set: { status: data.status } },
+            { new: true })
+        return res.status(200).send({ status: true, message: 'Success', data: updatedOrder })
+    } catch (error) {
+        return res.status(500).send({ status: false, Error: error.message })
+    }
+
 }
 
 module.exports = { orderCreate, updateOrder }
