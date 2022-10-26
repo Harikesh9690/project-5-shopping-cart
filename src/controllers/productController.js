@@ -211,7 +211,7 @@ const updateProducts = async function (req, res) {
                 let size = data.availableSizes.toUpperCase().split(",")
                 data.availableSizes = size;
             }
-        }//baaki hai
+        }
 
         if (data.installments) {
             if (!(data.installments || typeof data.installments == Number)) {
